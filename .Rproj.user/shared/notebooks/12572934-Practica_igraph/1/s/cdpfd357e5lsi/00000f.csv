@@ -1,0 +1,4 @@
+"0","red <- make_empty_graph(n=7, directed=TRUE)"
+"0","V(red)$color <- c (""blue"",""hotpink"",""yellow"",""green"",""orange"",""purple"",""red"")"
+"0","V(red)$shape <- ""sphere"""
+"0","plot(red, main = ""red vacía no dirigida con 7 nodos"")"

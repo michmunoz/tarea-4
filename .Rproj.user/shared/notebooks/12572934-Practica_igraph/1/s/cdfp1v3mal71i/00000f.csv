@@ -1,0 +1,6 @@
+"0","r <- make_empty_graph(n=8, directed=TRUE)"
+"0","V(r)$shape <- ""sphere"""
+"0","r <- add_edges(r, c(1,2, 1,3, 2,4, 5,8, 4,2, 5,7, 6,3, 6,8, 7,3, 5,4, 1,6))"
+"0",""
+"0","V(r)$name <- LETTERS[1:8]"
+"0","V(r)$color <- c (""blue"",""hotpink"",""yellow"",""green"",""orange"",""purple"",""red"", ""cyan"")"

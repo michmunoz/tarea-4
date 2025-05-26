@@ -1,0 +1,2 @@
+"0","library(igraph)"
+"0","karate<-make_graph(""Zachary"")"

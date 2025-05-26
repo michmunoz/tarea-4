@@ -1,0 +1,390 @@
+
+---
+title: 'Práctica con igraph: Conceptos básicos de teoría de redes'
+author: "Roberto Álvarez"
+output:
+  html_document: 
+    df_print: kable
+    toc: true
+    highlight: espresso
+    theme: readable
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(igraph)
+```
+
+## 1. Crear redes desde cero
+
+```{r}
+g <- make_empty_graph(n=5, directed=TRUE)
+V(g)$color <- "yellow"
+V(g)$shape <- "sphere"
+plot(g, main = "red vacío con 5 nodos")
+```
+
+### Agregar conexiones
+
+```{r}
+g <- add_edges(g, c(1,2, 1,3, 2,4, 3,4, 4,5))
+plot(g, main = "red con conexiones agregadas")
+```
+
+### Agregar nodo rojo y nuevas conexiones
+
+```{r}
+g <- add_vertices(g, 1, color="red", shape="sphere")
+g <- add_edges(g, c(3,6, 6,5))
+plot(g, main = "Nodo rojo y nuevas conexiones")
+```
+
+### Renombrar nodos
+
+```{r}
+V(g)$name <- LETTERS[1:6]
+plot(g, main = "Nodos con nombres A-F")
+```
+
+### Cambiar dirección de una conexión
+
+```{r}
+g <- delete_edges(g, c(2))
+g <- add_edges(g, c(3,1))
+plot(g, main = "Cambio en dirección de conexión")
+```
+#### Ejercicios:
+
+1.  Crea una red vacía de 7 nodos no dirigidos, y asígnales colores aleatorios de una paleta.
+
+```{r}
+red <- make_empty_graph(n=7, directed=TRUE)
+V(red)$color <- c ("blue","hotpink","yellow","green","orange","purple","red")
+V(red)$shape <- "sphere"
+plot(red, main = "red vacía no dirigida con 7 nodos")
+```
+
+2.  Agrega conexiones entre nodos vecinos formando una red tipo cadena (path).
+
+```{r}
+red2 <- add_edges(red, c(1,2, 2,3, 3,4, 4,5, 5,6,6,7))
+plot(red2, main = "red con conexiones agregadas")
+```
+
+
+3.  Elimina una conexión y observa el cambio en la visualización.
+
+```{r}
+red3 <- add_edges(red, c(1,2, 2,3, 4,5, 5,6, 6,7))
+plot(red3, main = "red con conexiones agregadas (-1)")
+```
+
+4.  ¿Qué pasa si agregas una conexión entre un nodo y él mismo? ¿Y si duplicas una conexión?
+
+```{r}
+red4 <- add_edges(red, c(1,2, 2,2, 2,3, 3,4, 4,5, 5,6, 5,6, 6,7))
+plot(red4, main = "red con conexiones agregadas (duplicado)")
+```
+
+
+## 2. Grado y distribución
+
+```{r}
+degree(g)
+plot(g, layout=layout_nicely, vertex.size=degree(g, mode="in")*10+10,
+     vertex.label.dist=0.5, edge.arrow.size=0.5,
+     main = "Tamaño proporcional al grado de entrada")
+```
+
+```{r}
+plot(degree_distribution(g), main="Distribución del grado", xlab="Grado", ylab="Frecuencia")
+hist(degree(g), col="salmon", main="Histograma del grado")
+```
+
+#### Ejercicios:
+
+1.  Calcula el *degree* de salida, entrada, y total de cada nodo.
+
+```{r}
+dg <- c (degree(red4, mode="total"))
+dg
+```
+
+
+2.  ¿Qué nodo tiene el mayor *degree* de entrada? ¿Y de salida?
+
+```{r}
+dgin <- c (degree(red4, mode="in"))
+dgin
+```
+Los nodos con mayor degree de entrada son el 2 y el 6 
+
+```{r}
+dgout <- c (degree(red4, mode="out"))
+dgout
+```
+Los nodos con mayor degree de salida son el 2 y el 5
+
+3.  Cambia el tamaño de los nodos en función de su *degree* total.
+```{r}
+plot(red4, layout=layout_nicely, vertex.size=degree(red4, mode="total")*10+10,
+     vertex.label.dist=0.5, edge.arrow.size=0.5,
+     main = "Tamaño proporcional al degree total")
+```
+
+
+4.  Agrega etiquetas a los nodos que tengan grado igual a 3.
+
+```{r}
+
+```
+
+
+5.  Genera un gráfico de barras con `barplot()` en lugar de `hist()` para mostrar el grado de los nodos.
+```{r}
+plot(degree_distribution(red4), main="Distribución del grado", xlab="Grado", ylab="Frecuencia")
+barplot(degree(red4), col="hotpink2", main="Histograma del grado")
+```
+
+
+## 3. Matriz de adyacencia y mapa de calor
+
+```{r}
+adj_mat <- as.matrix(get.adjacency(g))
+heatmap(adj_mat, Rowv=NA, Colv="Rowv", main="Mapa de calor de la matriz de adyacencia")
+```
+####  Ejercicios:
+
+nueva red
+
+```{r}
+r <- make_empty_graph(n=8, directed=TRUE)
+V(r)$shape <- "sphere"
+r <- add_edges(r, c(1,2, 1,3, 2,4, 5,8, 4,2, 5,7, 6,3, 6,8, 7,3, 5,4, 1,6))
+V(r)$name <- LETTERS[1:8]
+V(r)$color <- c ("blue","hotpink","yellow","green","orange","purple","red", "cyan")
+plot(r, main = "red con conexiones agregadas")
+```
+
+
+1.  Verifica que la matriz de adyacencia sea simétrica si el grafo no es dirigido.
+
+```{r}
+mat <- as.matrix(get.adjacency(r))
+heatmap(mat, Rowv=NA, Colv="Rowv", main="Mapa de calor de la matriz de adyacencia")
+```
+
+2.  Cambia el grafo a no dirigido y vuelve a generar el mapa de calor. ¿Qué cambia?
+```{r}
+r <- make_empty_graph(n=8, directed=FALSE)
+V(r)$shape <- "sphere"
+r <- add_edges(r, c(1,2, 1,3, 2,4, 5,8, 4,2, 5,7, 6,3, 6,8, 7,3, 5,4, 1,6))
+V(r)$name <- LETTERS[1:8]
+V(r)$color <- c ("blue","hotpink","yellow","green","orange","purple","red", "cyan")
+plot(r, main = "red con conexiones agregadas")
+
+mat <- as.matrix(get.adjacency(r))
+heatmap(mat, Rowv=NA, Colv="Rowv", main="Mapa de calor de la matriz de adyacencia")
+```
+Cambia completamente el acomodo y los valores de la matriz, ya que en la dirigida se tienen en cuanta valores de entrada y de salida, mientras que en la no dirigida solo se establecen las conecciones, por lo que en la segunda se ven mas conexiones.
+
+3.  Identifica en la matriz cuáles nodos tienen conexiones entre sí visualmente.
+En el caso del 2 y del 4 tienen 2 conexiones entre sí, ya que el color del recuadro es el mas intenso
+
+4.  Calcula el número total de aristas sumando los elementos de la matriz.
+
+```{r}
+aristas <- sum (mat)/2
+aristas
+```
+
+5. Guarda la matriz como un archivo CSV con write.csv().
+
+```
+matriz <- write.csv(mat, file= "genomica.Rproj/mat_adj.csv")
+```
+
+
+## 4. Redes especiales
+
+```{r}
+plot(make_star(10), main="Red estrella")
+plot(make_ring(10), main="Red anillo")
+plot(make_tree(15, children = 2), main="Árbol binario")
+```
+
+
+
+####  Ejercicios:
+
+1.  Crea un `make_tree()` con 3 niveles y 3 hijos por nodo. ¿Cuántos nodos esperas?
+
+```{r}
+tree <- plot(make_tree(13, children = 3), main="Árbol 1")
+```
+Se esperan 13 nodos, para que los multiplos coincidan con 3 hijos cada uno, pero se debe de considerar el nodo del centro.
+
+2.  Compara la distribución de grados entre `make_ring(20)` y `make_star(20)`.
+
+```{r}
+ring <- make_ring (20)
+plot (ring)
+star <- make_star (20)
+plot (star)
+```
+
+```{r}
+plot(degree_distribution(ring), main="Distribución del grado", xlab="Grado", ylab="Frecuencia")
+barplot(degree(ring), col="cyan3", main="Histograma del grado de ring")
+```
+
+```{r}
+plot(degree_distribution(star), main="Distribución del grado", xlab="Grado", ylab="Frecuencia")
+barplot(degree(star ), col="purple1", main="Histograma del grado de star")
+```
+
+En el degree del anillo todos ,os nodos tienn el mismo valor, mientras que en el degree de star el primer nodo que corresponde al centro de la estrella tiene un degree muy alto y el resto tienen el mismo valor.
+
+3.  ¿Qué tipo de red podría representar un `make_lattice(c(4,4))`?
+4.  Usa `sample_gnp()` para generar 3 redes aleatorias con diferentes probabilidades de conexión.
+5.  ¿Cuál de estas redes tiene más componentes conectados? Usa `components()`.
+
+## 5. Crear red desde archivos
+
+```
+# Ajusta la ruta si es necesario
+complete_address <- "PATH_TO_DATA/"
+nodes <- read.csv(paste0(complete_address, "Dataset1-Media-Example-NODES.csv"), header=TRUE, stringsAsFactors = FALSE)
+links <- read.csv(paste0(complete_address, "Dataset1-Media-Example-EDGES.csv"), header=TRUE, stringsAsFactors = FALSE)
+
+net <- graph_from_data_frame(d=links, vertices=nodes, directed=TRUE)
+net <- simplify(net, remove.multiple = FALSE, remove.loops = TRUE)
+plot(net, edge.arrow.size=.4, vertex.label=NA)
+```
+
+## 6. Personalización del red
+
+```
+colrs <- c("gray50", "tomato", "gold")
+V(net)$color <- colrs[V(net)$media.type]
+V(net)$size <- V(net)$audience.size * 0.6
+V(net)$label <- NA
+E(net)$width <- E(net)$weight/6
+E(net)$arrow.size <- .2
+E(net)$edge.color <- "gray80"
+graph_attr(net, "layout") <- layout_with_lgl
+plot(net)
+```
+
+## 7. Ejercicios prácticos
+
+### Ejercicio 1: Redes aleatorias
+
+```{r}
+g1 <- barabasi.game(100, directed = FALSE)
+g2 <- erdos.renyi.game(100, p=0.5)
+g3 <- sample_smallworld(1, 100, p=0.2, nei=3)
+
+graphs <- list(g1=g1, g2=g2, g3=g3)
+for (name in names(graphs)) {
+  cat("\nAnálisis de", name, "\n")
+  g <- graphs[[name]]
+  print(paste("Grado medio:", mean(degree(g))))
+  hist(degree(g), col="lightblue", main=paste("Histograma del grado:", name))
+  plot(degree_distribution(g), main=paste("Distribución de grados:", name))
+  heatmap(as.matrix(get.adjacency(g)), Rowv=NA, Colv="Rowv", main=paste("Mapa de calor:", name))
+}
+```
+
+### Ejercicio 2: Nodo con mayor grado
+
+```{r}
+which.max(degree(g1))
+```
+
+### Ejercicio 3: Top 10 nodos más conectados
+
+```{r}
+head(sort(degree(g1), decreasing = TRUE), 10)
+```
+
+### Ejercicio 4: Crear red con personas y estados
+
+```{r}
+personas <- c("Ana", "Beto", "Caro", "Diego", "Elena", "Fer")
+estados <- c("Querétaro", "Querétaro", "Guanajuato", "Hidalgo", "Edo. de México", "Querétaro")
+n <- length(personas)
+
+conexiones <- c()
+for (i in 1:(n-1)) {
+  for (j in (i+1):n) {
+    if (estados[i] == estados[j] || abs(i-j) == 1) {
+      conexiones <- c(conexiones, i, j)
+    }
+  }
+}
+
+g_pers <- make_empty_graph(n, directed=FALSE)
+g_pers <- add_edges(g_pers, conexiones)
+V(g_pers)$name <- personas
+V(g_pers)$color <- "skyblue"
+V(g_pers)$size <- degree(g_pers)*5 + 10
+plot(g_pers, main = "Red basada en estado de nacimiento y vecinos")
+```
+
+### Ejercicios:
+
+1.  Repite el análisis de grado para 3 redes diferentes generadas con distintos modelos (barabasi, smallworld, erdos.renyi) y compara sus distribuciones.
+2.  Crea una función en R que reciba una red y regrese una tabla con:
+  - Nodo
+  - Grado total
+  - Grado de entrada
+  - Grado de salida
+3.  Diseña una red hipotética donde los nodos representen ingredientes y las conexiones si aparecen en la misma receta. 
+4.  Visualiza la red.
+5.  Calcula la matriz de distancias (número de pasos) entre todos los pares de nodos. ¿Quiénes están más alejados?
+6.  Diseña una red colaborativa donde los nodos sean compañeros de clase y los enlaces indiquen colaboración en tareas. 
+7.  Usa `igraph::graph_from_literal()` para definirla manualmente.
+
+
+### Red de amigos:)
+
+```{r}
+friends <- read.csv("adjacency_matrix.csv")
+friends
+```
+
+```{r}
+rownames(friends)<- friends[,1]
+View(friends)
+friends<-friends[,-1]
+friends<-as.matrix(friends)
+diag(friends) <-0
+diag
+redf<-graph_from_adjacency_matrix(friends)
+plot(redf, vertex.size=15,vertex.size=5,
+     edge.arrow.size=0.25,layout=layout_nicely,vertex.size.label=0.25)
+```
+
+```{r}
+outdg <- degree (redf, mode = "out")
+outdg
+```
+
+personas que yo puse como amigos:
+
+ABRAHAM : 8 amigos
+DANIELA : 6 amigos
+ESTRELLA : 6 amigos
+XYMENA : 5 amigos
+ZAID : 16 amigos
+
+```{r}
+promedio <- sum (8+6+6+5+16) /5
+  
+promedio
+```
+
+
+

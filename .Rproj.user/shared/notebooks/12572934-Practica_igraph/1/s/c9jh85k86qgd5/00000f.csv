@@ -1,0 +1,1 @@
+"0","plot(degree_distribution(ring), main=""Distribución del grado"", xlab=""Grado"", ylab=""Frecuencia"")"

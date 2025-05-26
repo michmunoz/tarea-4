@@ -1,0 +1,300 @@
+---
+title: "Tarea 4 Genómica Funcional 2025"
+author: "Daniela Michelle Muñoz"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document: 
+    fig_height: 8
+    fig_width: 13
+    number_section: yes
+    theme: cerulean
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+  pdf_document:
+    toc: yes
+  word_document:
+    toc: yes
+  html_notebook: 
+    number_sections: yes
+    toc: yes
+#bibliography: biblio.bib
+#csl: nature.csl
+#runtime: shiny
+#output: flexdashboard::flex_dashboard
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Tarea 4
+
+1.  Considera una red de 15 nodos . Considera que tienes una sola conexión. ¿Cuál es el número máximo de nodos que puedes conectar? Dado un solo nodo , ¿cuál es el número máximo conexiones que puede tener tal nodo?
+
+Con una sola conexión se pueden conectar solo dos nodos, sea una red dirigida o no dirigida, pesada o no.
+El número máximo de nodos con los que se puede conectar un solo nodo es 14, esto si la red es completamenet densa, ya que se puede conectar con todos los nodos de la red menos consigo mismo.
+
+2.  Considera una red dirigida de 10 nodos. Usa 25 conexiones y dibuja una red con ese número de nodos y conexiones dirigidas. Calcula la distribución de conectividades de salida.Calcula el número total de conexiones de salida ¿Cómo se compara el número total de de conectividades de entrada (son iguales, diferentes)? Explica tu respuesta. Calcula el promedio de entrada y de salida. Discute tu resultado.
+
+El dibujo de la red se encuentra en el PDF adjunto al mismo R proyect.
+
+El número total de conexiones de salida y de entrada son el mismo en la red en conjunto, aunque, la distribución del degree de salida y entrada pueden variar entre nodos. Por esta misma razón los promedios de entrada y salida es el mismo (2.5) ya que es una propiedad global y el cambio en las entradas y salidas se observa de forma individual a cada nodo.
+
+3.  Considera una red no dirigida de $n=3,4,5,6$ nodos respectivamente. ¿Cuál es el número máximo de conexiones que puedes poner? Dibuja cada caso. ¿Qué pasa si la red es dirigida?
+
+El número de coexiones puede aumentar dependiendo la dirección, ya que en una red no no dirigida se puede establecer una sola conexión entre dos nodos, mientras que en una dirigida puede existir la conexion de netrada y de salida en un mismo nodo con respecto a otro.
+
+4.  Considera tu red de amigos reales.¿ Cuál es tu coeficiente de clusterización?
+
+
+1.  **Propiedades básicas de redes**
+
+Los cálculos a mano de las redes se encuentran en un pdf en este mismo R proyect
+
+Después escribe código en R que genere las gráficas de las redes y que calcule las propiedades anteriores para cada red.
+
+```{r warning=FALSE}
+library (igraph)
+
+propiedades <- function (red) {
+  nodos <- vcount (red)
+  print (paste ("nodos:", nodos))
+  
+  conex <- ecount (red)
+  print (paste ("conexiones:", conex))
+  
+  deg <- degree (red, mode = "total")
+  print (paste ("degree:", deg))
+  
+  avera <- mean (deg)
+  print (paste ("average degree:", avera))
+  
+  dist <- barplot(degree(red), col="hotpink2", main="Degree distribution")
+  dist
+  
+  dens <- edge_density(red)
+  print (paste("Densidad:", dens))
+  
+  adj <- as.matrix(get.adjacency(red))
+  print (adj)
+  
+  dist <- as.matrix(distances(red))
+  print (dist)
+  
+  diam <- diameter(red)
+  print(paste ("diámetro:"), diam)
+  
+  clust <- transitivity(red, type = "global")
+  print (paste("Coeficiente de clusterización:", clust))
+  
+}
+
+
+```
+
+Redes
+```{r}
+red<- (make_empty_graph(n=10, directed=FALSE))
+redd<- (make_empty_graph(n=10, directed=TRUE))
+```
+
+
+```{r}
+red1<- add_edges(red, c(1,2, 1,7, 2,3, 2,4, 3,5, 4,8, 4,6, 6,9, 6,10))
+plot (red1)
+propiedades (red1)
+```
+
+
+```{r}
+red2 <- add_edges (redd, c(2,1, 3,1, 4,1, 5,1, 6,1, 7,4, 8,4, 9,4, 10,8))
+plot (red2)
+propiedades (red2)
+```
+
+
+```{r}
+red3 <- make_full_graph(10, directed = FALSE)
+plot(red3)
+propiedades (red3)
+```
+
+
+```{r}
+red4 <- add_edges (redd, c(1,8, 1,3, 2,5, 2,10, 2,6, 3,10, 4,10, 4,1, 4,9, 4,6, 4,3, 5,1, 5,7, 6,3, 6,8,
+                           7,1, 7,8, 8,7, 8,10, 8,9, 9,2, 9,3, 10,9, 10,6, 10,1, 10,5))
+plot (red4)
+propiedades (red4)
+```
+
+
+```{r}
+red5 <- add_edges(red, c(1,3, 1,7, 1,10, 2,7, 3,7, 4,6, 4,8, 4,10, 5,7, 6,8, 6,10, 7,8, 8,9, 8,10, 9,10))
+plot (red5)
+propiedades(red5)
+```
+
+
+```{r}
+red6 <- add_edges(redd, c(1,2, 1,3, 2,4, 2,5, 3,7, 3,6, 4,8, 4,9, 5,10))
+plot(red6)
+propiedades(red6)
+```
+
+
+
+1.  **Karate**
+
+Considera la red del club de Karate de Zachary. [Acá](https://en.wikipedia.org/wiki/Zachary%27s_karate_club) puedes leer sobre eso. En igraph la gráfica está precargada
+
+```{r message=FALSE, warning=FALSE}
+library(igraph)
+karate<-make_graph("Zachary")
+plot(karate)
+```
+
+-   ¿Cuántos nodos y conexiones tiene?
+```{r}
+# NODOS
+vcount(karate)
+#CONEXIONES
+ecount (karate)
+```
+
+-   ¿Quiénes son los nodos y cuál es la regla de conexión?
+Los nodos son miembros de un club de karate, la regla de coenxión es que tengan interacción fuera del club de karate
+
+-   ¿Qué tan densa es la red?
+```{r}
+ edge_density(karate)
+```
+Es poco densa ya que su valor es cercano al cero, por lo que los nodos de la red pueden establecer más conexiones de las que ya están.
+
+-   ¿Cómo obtienes la matriz de adyacencia?
+``` 
+as.matrix(get.adjacency(karate))
+```
+De esta forma nos muestra en una matriz binaria una matriz simétrica de conexiones entre los nodos de la red
+
+-   ¿Es una red dirigida, pesada?
+No, la red no es dirigida ni pesada
+
+-   Calcula y gráfica la distribución de conectividades
+```{r}
+dis <- barplot(degree(karate), col="tan3", main="Degree distribution")
+  dis
+```
+
+-   Calcula el diámetro, la matriz de distancias y la distancia promedio
+```{r}
+#DIÁMETRO
+diameter(karate)
+
+dista <- as.matrix(distances(karate))
+  print (dista)
+  
+# DISYANCIA PROMEDIO
+mean_distance(karate)
+  
+```
+
+-   Existen nodos con coefeiciente de clusterización 1. ¿Qué significa?
+Significa que todos los nodos vecinos del nodo de interes estan completamente conectados entre sí.
+
+
+**Explica e interpreta tus resultados**.
+
+2.  **Amigues**
+
+A partir de la red de amigues que vimos en clase, en su versión no ponderada, contesta lo siguiente:
+
+```{r}
+friends <- read.csv("adjacency_matrix.csv")
+friends
+```
+
+
+```{r}
+rownames(friends)<- friends[,1]
+View(friends)
+friends<-friends[,-1]
+friends<-as.matrix(friends)
+diag(friends) <-0
+diag
+redf<-graph_from_adjacency_matrix(friends)
+plot(redf, vertex.size=15,vertex.size=5,
+     edge.arrow.size=0.25,layout=layout_nicely,vertex.size.label=0.25)
+
+```
+
+-   Escribe una función que calcule el número de amigos que tiene cualquier persona arbitraria y lo compare con el número de los amigos de estos.
+
+```{r}
+amix <- function(nodo) {
+  ami <- degree (redf, v =nodo, mode="out")
+  print (paste(nodo, "tiene", ami, "amigos"))
+  
+  print ("sus amigos tienen:")
+  
+  for (i in 1:ami){
+    print (paste((degree (redf, v =i, mode="out")), "amigos, cada uno"))
+  }
+  
+}
+
+amix("MICHELLE")
+```
+
+-   Encuentra las dos personas más populares.
+
+```{r}
+rank <- sort((degree(redf, mode="in")), decreasing = TRUE)
+rank
+```
+Daniela y Zaid
+
+
+4.  **Redes biológicas**
+
+Ve a al [Network Repository](https://networkrepository.com/bn-mouse-visual-cortex-1.php) y descarga la red en formato lista de adyacencia. Explica que representam los nodos y las conectividades.
+
+Escribe código que resuelva lo siguiente:
+
+-   Cargue y genere una gráfica en `igraph`
+```
+mouse <- read.graph (file="mouse_cortex", format="edgelist")
+```
+
+-   Genera la gráfica con todos los layouts disponibles.
+
+
+-   Grafica la red con al menos tres medidas de centralidad.
+-   ¿Qué tan densa es la red?
+-   Clusteriza la red con al menos tres métodos de clusterización. Gráfica la red con esos métodos.
+
+Explica tus resultados.
+
+
+6.  **Comparación de redes**
+
+Construye dos redes:
+
+-   Una red aleatoria tipo Erdos-Rényi.
+
+```{r}
+reder <- erdos.renyi.game(25, p=0.3)
+plot (reder)
+propiedades (reder)
+```
+
+-   Una red tipo "scale-free" usando el modelo Barabási–Albert.
+```{r}
+redbara <- barabasi.game(25, directed = FALSE)
+plot (redbara)
+propiedades (redbara)
+```
+

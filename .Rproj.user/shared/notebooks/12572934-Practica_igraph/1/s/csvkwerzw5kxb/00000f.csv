@@ -1,0 +1,4 @@
+"0","g <- make_empty_graph(n=5, directed=TRUE)"
+"0","V(g)$color <- ""yellow"""
+"0","V(g)$shape <- ""sphere"""
+"0","plot(g, main = ""red vacío con 5 nodos"")"

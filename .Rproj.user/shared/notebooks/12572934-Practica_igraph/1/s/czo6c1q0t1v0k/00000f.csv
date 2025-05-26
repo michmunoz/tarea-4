@@ -1,0 +1,2 @@
+"0","plot(r, main = ""red con conexiones agregadas"")"
+"0","mat <- as.matrix(get.adjacency(r))"

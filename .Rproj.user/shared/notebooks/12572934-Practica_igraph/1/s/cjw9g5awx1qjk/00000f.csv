@@ -1,0 +1,2 @@
+"0","V(g)$name <- LETTERS[1:6]"
+"0","plot(g, main = ""Nodos con nombres A-F"")"

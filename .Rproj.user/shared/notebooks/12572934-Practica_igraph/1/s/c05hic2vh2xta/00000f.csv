@@ -1,0 +1,2 @@
+"0","red2 <- add_edges(red, c(1,2, 2,3, 3,4, 4,5, 5,6,6,7))"
+"0","plot(red2, main = ""red con conexiones agregadas"")"

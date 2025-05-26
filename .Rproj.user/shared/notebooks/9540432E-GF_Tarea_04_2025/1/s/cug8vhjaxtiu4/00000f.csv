@@ -1,0 +1,4 @@
+"0","friends <- read.csv(""adjacency_matrix.csv"")"
+"2","Warning: no fue posible abrir el archivo 'adjacency_matrix.csv': No such file or directory"
+"2","Error in file(file, ""rt"") : no se puede abrir la conexión
+"

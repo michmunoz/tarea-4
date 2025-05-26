@@ -1,0 +1,1 @@
+"0","plot(degree_distribution(red4), main=""Distribución del grado"", xlab=""Grado"", ylab=""Frecuencia"")"

@@ -1,0 +1,2 @@
+"0","adj_mat <- as.matrix(get.adjacency(g))"
+"0","heatmap(adj_mat, Rowv=NA, Colv=""Rowv"", main=""Mapa de calor de la matriz de adyacencia"")"

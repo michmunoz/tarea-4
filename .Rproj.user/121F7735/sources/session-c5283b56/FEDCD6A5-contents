@@ -1,0 +1,306 @@
+---
+title: "Distancias y clusterización"
+author: "Roberto Álvarez"
+date: "`r Sys.Date()`"
+output:
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(igraph)
+```
+
+## Introducción
+
+En esta práctica exploraremos dos conceptos clave del análisis de redes:
+
+- **Distancias** entre nodos (longitud de los caminos más cortos)
+- **Coeficiente de clustering** (agrupamiento o transitividad)
+
+Para ello usaremos funciones de `igraph` en R y analizaremos redes artificiales y reales.
+
+---
+
+## 1. Distancias entre nodos
+
+```{r}
+g <- make_ring(10)
+plot(g, main = "Red tipo anillo")
+```
+
+### Caminos más cortos
+
+```{r}
+distances(g)
+```
+
+```{r}
+dist_matrix <- distances(g)
+heatmap(dist_matrix, main="Matriz de distancias")
+```
+
+### Ejercicios 
+
+1. Cambia la red `g` por un grafo tipo estrella. ¿Cómo cambia la matriz de distancias?
+
+```{r}
+red <- (make_star(10))
+
+plot (red, main= "Red estrella")
+
+distances (red)
+```
+
+Las distancias del eje central (nodo 1) con respecto a los otros nodos es de 1 en todos; mientras que las distacias de los nodos entre ellos es de 2 en todos los casos, esto por que deben de pasar por el nodo central (nodo 1) antes de llegar a cualquier otro nodo de la estrella.
+
+2. Agrega una arista adicional entre dos nodos lejanos. ¿Qué efecto tiene?
+```{r}
+red <- add_edges (red, c(3,8))
+plot (red, main= "Red estrella")
+
+distances (red)
+```
+
+Cambia la estructura de la red y ya no es una estrella perfecta, en la matriz de distancias los valores de los nodos ahora unidos cambia a 1 y el resto se mantiene con los mismos valores 
+
+3. Usa `shortest_paths()` para encontrar el camino más corto de un nodo a otro.
+
+```{r}
+shortest_paths(red, 3, to=8)
+
+```
+
+4. Encuentra los nodos más alejados entre sí.
+```{r}
+shortest_paths(red, 3, to=8)
+```
+
+5. Haz una función que devuelva la distancia media de un grafo.
+
+```{r}
+dist <- function (red){
+  len <- length(red)
+  suma <- sum (distances(red)/2)
+  suma / len
+}
+
+dist (red)
+```
+
+6. Calcula la excentricidad de cada nodo con `eccentricity()` y grafica su distribución.
+
+```{r}
+exe <- function (red) {
+  nod <- rep (0, (length(red)))
+  for (i in 1:(length(red))) {
+    nod[i] <- eccentricity(red, i)
+  }
+  print (nod)
+}
+
+exen <- exe (red)
+```
+
+```{r}
+plot (exen)
+```
+
+
+7. Identifica el centro y el perímetro del grafo.
+el centro sería el nodo 5 y el perimetro el nodo 1 y 10
+
+8. Crea una red aleatoria y compara sus distancias con una red regular.
+
+```{r}
+red2 <-(sample_gnp(8, 0.5, directed =FALSE))
+plot (red2)
+
+distances(red2)
+```
+
+En este caso la matriz es simétrica ya que la red no es dirigida, igual las distancias estan dadas de forma aleatoria segun las conexiones establecidas segun la probabilidad dada
+---
+
+## 2. Eficiencia de la red
+
+La eficiencia de una red mide qué tan fácilmente se puede transmitir información.
+
+```{r}
+mean_distance(g)
+```
+
+```{r}
+edge_density(g)
+```
+
+### Ejercicios 
+
+1. Crea 3 redes distintas (`ring`, `star`, `full`) y compara su distancia media.
+
+```{r warning=FALSE}
+ring <- (make_ring (8))
+plot(ring)
+average.path.length(ring)
+```
+
+
+```{r warning=FALSE}
+star <- (make_star(8))
+plot (star)
+average.path.length(star)
+```
+
+
+```{r warning=FALSE}
+full <- (make_full_graph(8))
+plot (full)
+average.path.length(full)
+```
+
+
+2. Haz un gráfico de barras con `barplot()` para visualizar la eficiencia de cada red.
+
+```{r warning=FALSE}
+
+efi <- c ((mean_distance(ring)), (mean_distance(star)), mean_distance(full))
+efi
+
+barplot(efi) 
+```
+```{r}
+edg <- c ((edge_density(ring)), (edge_density(star)), edge_density(full))
+edg
+
+barplot(edg) 
+```
+
+
+3. ¿Qué red tiene mayor densidad de aristas? ¿Por qué?
+
+La red Full, esto por que los nodos tienen conexión con todos los nodos de la red, es decir hay 8 nodos con 7 conexiones cada uno 
+
+4. Crea una función que calcule la eficiencia global definida como el promedio del inverso de las distancias entre todos los pares.
+
+
+5. Visualiza la red con colores que indiquen qué tan eficientes son los nodos en alcanzar a los demás.
+
+---
+
+## 3. Coeficiente de clustering
+
+El **coeficiente de clustering** mide qué tan conectados están los vecinos de un nodo.
+
+```{r}
+transitivity(g, type = "local")
+```
+
+```{r}
+transitivity(g, type = "average")
+```
+
+```{r}
+transitivity(g, type = "global")
+```
+
+### Visualización de triángulos
+
+```{r}
+g_tri <- make_full_graph(4)
+plot(g_tri, main = "Ejemplo con triángulo completo")
+```
+
+### Ejercicios 
+
+1. Crea una red con nodos en forma de triángulo y mide su clustering.
+```{r}
+tri <- (make_full_graph(3))
+plot (tri)
+```
+
+```{r}
+transitivity(tri)
+```
+
+2. Compara el clustering entre un grafo aleatorio y un grafo tipo `small-world`.
+```{r}
+plot (red2)
+transitivity(red2)
+```
+
+```{r}
+small <- sample_smallworld(1, 12, 3, 0.5)
+plot (small)
+transitivity (small)
+```
+3. ¿Qué nodos tienen clustering 0? ¿Por qué?
+aquellos que sus vecinos no tienen conecciones entre si
+
+4. Agrega una arista que cree un triángulo. ¿Qué cambia?
+```{r}
+small <- add_edges(small, c(3,2))
+plot (small)
+```
+
+Aleja a uno de los nodos, y con este se forma un triángulo
+
+5. Haz una función que devuelva la proporción de nodos con clustering mayor a 0.5.
+6. Simula 100 grafos aleatorios y grafica la distribución de clustering global.
+7. ¿Existe relación entre el grado de un nodo y su clustering local? Haz una gráfica de dispersión.
+8. Colorea los nodos en un grafo según su clustering local y visualiza.
+
+---
+
+## 4. Exploración con redes más grandes
+
+```{r}
+g_large <- sample_smallworld(1, 100, nei = 3, p = 0.1)
+plot(g_large, vertex.size = 3, vertex.label = NA, main = "Red tipo small-world")
+```
+
+```{r}
+distances(g_large)[1:10,1:10]
+```
+
+```{r}
+mean_distance(g_large)
+transitivity(g_large, type = "global")
+```
+
+### Ejercicios 
+
+1. Compara los valores anteriores con un grafo `barabasi.game()` de tamaño similar.
+2. ¿Cuál tiene menor distancia media?
+3. ¿Cuál tiene mayor clustering global?
+4. Agrega ruido conectando pares de nodos al azar. ¿Cómo cambia el clustering?
+5. Grafica el clustering global y la distancia media en función del parámetro `p` en `sample_smallworld`.
+6. Estima cuántas conexiones aleatorias se necesitan para reducir la distancia media a la mitad.
+
+---
+
+## 5. Comparar redes
+
+```{r}
+networks <- list(
+  ring = make_ring(50),
+  star = make_star(50),
+  full = make_full_graph(50),
+  smallworld = sample_smallworld(1, 50, nei = 3, p = 0.1),
+  ba = sample_pa(50)
+)
+
+sapply(networks, mean_distance)
+sapply(networks, function(g) transitivity(g, type = "global"))
+```
+
+### Ejercicios
+
+1. Grafica estas métricas para comparar visualmente.
+2. ¿Qué red sería mejor para difundir una noticia rápidamente?
+3. ¿Y cuál para limitar una epidemia?
+4. Relaciona el clustering con la eficiencia de propagación en cada red.
+5. Elige dos redes, elimina nodos aleatorios y observa cómo cambia su estructura.
+6. ¿Qué red es más robusta a la eliminación de nodos?
+7. Aplica medidas de centralidad (`betweenness`, `closeness`) y analiza su relación con clustering y distancia.
+
+---
+

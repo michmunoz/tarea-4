@@ -1,0 +1,1 @@
+"0","tree <- plot(make_tree(13, children = 3), main=""Árbol 1"")"

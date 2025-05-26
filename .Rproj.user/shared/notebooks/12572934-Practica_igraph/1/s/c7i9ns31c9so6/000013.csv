@@ -1,0 +1,1 @@
+"0","plot(make_tree(15, children = 2), main=""Árbol binario"")"

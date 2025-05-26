@@ -1,0 +1,2 @@
+"0","friends <- read.csv(""adjacency_matrix.csv"")"
+"0","friends"
